@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArrowLeft, Brain, Check, Info, Plus, Trash2 } from '@lucide/svelte';
+	import { ArrowLeft, Check, Info, Plus, Trash2, UsersRound } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label/index.js';
@@ -81,7 +81,7 @@
 			<ArrowLeft class="size-5" aria-hidden="true" />
 		</Button>
 		<div class="flex min-w-0 items-center gap-2.5">
-			<div class="rounded-lg bg-primary/10 p-2 text-primary"><Brain class="size-5" aria-hidden="true" /></div>
+			<div class="rounded-lg bg-primary/10 p-2 text-primary"><UsersRound class="size-5" aria-hidden="true" /></div>
 			<div class="min-w-0">
 				<h2 class="truncate text-base font-semibold">Pronoun preferences</h2>
 				<p class="text-xs text-muted-foreground">Personalize suggestions by name</p>
@@ -102,7 +102,7 @@
 
 		{#if preferences.length === 0}
 			<div class="rounded-xl border border-dashed border-border bg-muted/20 px-4 py-7 text-center">
-				<div class="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary"><Brain class="size-5" aria-hidden="true" /></div>
+				<div class="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary"><UsersRound class="size-5" aria-hidden="true" /></div>
 				<p class="text-sm font-medium">No preferences added</p>
 				<p class="mt-1 text-xs leading-5 text-muted-foreground">Add a name and pronoun set to guide suggestions for a person in your document.</p>
 			</div>

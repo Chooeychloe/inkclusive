@@ -43,9 +43,9 @@
 	});
 </script>
 
-<ScrollArea class="w-full px-3 pb-3 pt-2 lg:h-[550px] lg:px-4 2xl:h-[700px]">
+<ScrollArea class="w-full px-3 pb-3 pt-2 lg:h-137.5 lg:px-4 2xl:h-175">
 	<Card.Root class="mb-3 w-full overflow-hidden border-border shadow-sm">
-		<Card.Header class="space-y-0 bg-primary/[0.04] p-4 pb-4">
+		<Card.Header class="space-y-0 bg-primary/4 p-4 pb-4">
 			<div class="flex items-center justify-between gap-2">
 				<div class="flex min-w-0 items-center gap-2">
 					<div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -68,7 +68,7 @@
 					<p class="min-w-0 flex-1 leading-relaxed">Review each suggestion or apply all revisions to finish this step.</p>
 				{:else}
 					<Check class="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-					<p class="min-w-0 flex-1 leading-relaxed">No gender-fair suggestions remain. Youâ€™re ready to view your summary.</p>
+					<p class="min-w-0 flex-1 leading-relaxed">No gender-fair suggestions remain. You are ready to view your summary.</p>
 				{/if}
 			</div>
 
