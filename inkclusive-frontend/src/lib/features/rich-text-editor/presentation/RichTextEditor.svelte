@@ -4,7 +4,7 @@
 	import { EditorState } from 'prosemirror-state';
 	import { EditorView } from 'prosemirror-view';
 	import { DOMParser, DOMSerializer } from 'prosemirror-model';
-	import { history, closeHistory } from 'prosemirror-history';
+import { history, closeHistory, undo, redo, undoDepth, redoDepth } from 'prosemirror-history';
 
 	import { textContent, textContentHTML, textTitle } from '$lib/stores/textFromEditorStore';
 	import mySchema from '$lib/features/rich-text-editor/entities/Schema';
@@ -33,10 +33,12 @@
 
 	import { tourStore } from '$lib/stores/tourStore';
 	import { readLocalDraft, writeLocalDraft } from '../services/localDraft';
+import { editorHistoryStore } from '$lib/stores/editorHistoryStore';
 
 	let editorContainer: HTMLDivElement | null = $state(null);
 	let view: EditorView | null = $state(null);
 	let linterPlugin = createLinterPlugin([]);
+	const historyPlugin = history();
 	let draftStatus = $state('');
 	let draftReady = $state(false);
 	let draftTimer: ReturnType<typeof setTimeout> | undefined;
@@ -87,7 +89,7 @@
 			const state = view.state.reconfigure({
 				plugins: [
 					linterPlugin,
-					history(),
+					historyPlugin,
 					extendedKeyMap,
 					keymap(baseKeymap),
 					myKeymap,
@@ -98,6 +100,7 @@
 			});
 
 			view.updateState(state);
+			syncUndoAvailability();
 		}
 	}
 
@@ -116,6 +119,20 @@
 		}
 	}
 
+	function syncUndoAvailability() {
+		if (!view) return;
+		editorHistoryStore.set({
+			canUndo: undoDepth(view.state) > 0,
+			canRedo: redoDepth(view.state) > 0,
+			undo: () => {
+				if (view) undo(view.state, (transaction) => view!.dispatch(transaction));
+			},
+			redo: () => {
+				if (view) redo(view.state, (transaction) => view!.dispatch(transaction));
+			}
+		});
+	}
+
 	function replaceWordCommand(words: TSuggestion) {
 		return (state: EditorState, dispatch?: (tr: Transaction) => void): boolean => {
 			if (!dispatch) return false; // No dispatch means no transaction to apply
@@ -128,12 +145,14 @@
 	$effect(() => {
 		if ($replaceStore.length != 0) {
 			$replaceStore.forEach((store) => {
-				replaceWordCommand(store)(view!.state, view!.dispatch);
+				// Isolate every accepted suggestion so each replacement can be
+				// undone independently, including when applying all suggestions.
+				resetHistory();
+				replaceWordCommand(store)(view!.state, (transaction) => view!.dispatch(transaction));
+				resetHistory();
 			});
 
 			$replaceStore = [];
-			resetHistory();
-			reconfigureAllPlugins();
 		}
 	});
 
@@ -220,7 +239,7 @@
 				document.createRange().createContextualFragment($textContentHTML)
 			),
 			plugins: [
-				history(),
+				historyPlugin,
 				extendedKeyMap,
 				keymap(baseKeymap),
 				myKeymap,
@@ -243,6 +262,7 @@
 			dispatchTransaction(transaction) {
 				const newState = view!.state.apply(transaction);
 				view!.updateState(newState);
+				syncUndoAvailability();
 				view!.dom.dispatchEvent(new Event('inkclusive:selectionchange'));
 				$textContent = newState.doc.textContent.toString();
 				const fragment = DOMSerializer.fromSchema(mySchema).serializeFragment(newState.doc.content);
@@ -252,8 +272,10 @@
 			}
 		});
 		reconfigureAllPlugins();
+		syncUndoAvailability();
 
 		return () => {
+			editorHistoryStore.set({ canUndo: false, canRedo: false, undo: () => {}, redo: () => {} });
 			if (draftTimer) clearTimeout(draftTimer);
 			writeLocalDraft({ text: $textContent, html: $textContentHTML, title: $textTitle });
 			view?.destroy();

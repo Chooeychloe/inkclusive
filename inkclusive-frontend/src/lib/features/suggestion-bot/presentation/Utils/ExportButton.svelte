@@ -10,10 +10,33 @@
 	import { Download } from '@lucide/svelte';
 
 	async function downloadDocx() {
+		// html-to-docx does not understand newer CSS color syntaxes such as oklch().
+		// Resolve inline editor colors through the browser before sending the HTML.
+		const doc = document.createElement('div');
+		doc.innerHTML = $textContentHTML;
+		const canvas = document.createElement('canvas');
+		canvas.width = 1;
+		canvas.height = 1;
+		const context = canvas.getContext('2d', { willReadFrequently: true });
+		doc.querySelectorAll<HTMLElement>('[style]').forEach((element) => {
+			if (element.style.color) {
+				const resolvedColor = getComputedStyle(element).color;
+				if (resolvedColor && context) {
+					context.clearRect(0, 0, 1, 1);
+					context.fillStyle = resolvedColor;
+					context.fillRect(0, 0, 1, 1);
+					const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+					element.style.color = `#${[red, green, blue]
+						.map((channel) => channel.toString(16).padStart(2, '0'))
+						.join('')}`;
+				}
+			}
+		});
+
 		const response = await fetch('/api/docx', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ htmlContent: $textContentHTML })
+			body: JSON.stringify({ htmlContent: doc.innerHTML })
 		});
 
 		if (response.ok) {

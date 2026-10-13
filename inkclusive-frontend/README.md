@@ -23,6 +23,26 @@ Admin sign-in is verified by the FastAPI backend. Term-management requests are p
 
 The former `/dashboard/editor`, `/dashboard/scan`, and `/dashboard/history` URLs redirect to `/write`, `/scan`, and `/history` respectively.
 
+## Libraries and how they are used
+
+| Library | Use in Inkclusive |
+| --- | --- |
+| Svelte 5, SvelteKit, Vite, TypeScript | UI components, routes and server endpoints, development server, and application types. Netlify adapter packages the SvelteKit app for deployment. |
+| ProseMirror packages (`prosemirror-*`) | Structured rich-text editor, document schema, formatting commands, keyboard shortcuts, undo/redo history, inline decorations, and applying suggestions at character ranges. |
+| `pdfjs-dist` | Reads selectable text from PDF pages during Scan. It does not perform OCR on image-only PDFs. |
+| `tesseract.js` | OCR for supported image uploads; returns recognized text for the editor. |
+| `mammoth` | Extracts plain text from DOCX uploads through a SvelteKit server endpoint. |
+| `jspdf`, `html-to-docx` | Generate PDF and DOCX exports from editor content. |
+| `@tanstack/table-core` | Sorting, filtering, selection, and pagination logic for the admin term table. |
+| `zod`, `sveltekit-superforms` | Define and validate the admin term-entry form on the client and server. |
+| `bits-ui`, `formsnap`, `tailwind-variants`, `tailwind-merge`, `clsx` | Accessible UI primitives, form integration, component style variants, and conditional/merged CSS classes. |
+| Tailwind CSS, `@tailwindcss/typography`, `tailwindcss-animate` | Utility styling, typography styles, and animation utilities. |
+| `@lucide/svelte`, `svelte-sonner`, `embla-carousel-svelte`, `driver.js`, `mode-watcher` | Icons, toast notifications, carousel behavior, guided UI tour, and light/dark theme preference. |
+| `date-fns` | Date formatting and date utilities in the interface. |
+| Vitest, jsdom, ESLint, Prettier, `svelte-check` | Unit tests and DOM environment, lint/format checks, and Svelte/TypeScript diagnostics. These are development tools, not runtime language analyzers. |
+
+The grammar and gender-fair analyzers are backend libraries, not frontend dependencies: `language-tool-python` connects to LanguageTool for grammar matches, and spaCy with `en_core_web_sm` provides tokenization, part-of-speech tags, dependency labels, and named entities used by Inkclusive's gender-fair rules. See the [backend analysis examples](../inkclusive-backend/README.md#language-analysis-examples) for sample requests and responses.
+
 ## Local data and privacy
 
 - **Draft recovery:** one current draft is stored in `localStorage` under `inkclusive.localDraft.v1`. It is not uploaded automatically, synchronized between devices, or backed up by an account.

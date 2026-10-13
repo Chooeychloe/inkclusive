@@ -22,6 +22,7 @@
 	import { ignoreGrammarStore } from '$lib/stores/ignoreStore';
 	import { HistoryManager } from '../../../../routes/(workspace)/history/historyManager';
 	import { Settings } from '@lucide/svelte';
+	import { suggestionSessionStore } from '$lib/stores/suggestionSessionStore';
 
 	let api = $state<CarouselAPI>();
 	let isSuggestionsTab = $state<boolean>(true);
@@ -99,6 +100,7 @@
 
 	function backToTheStart() {
 		if (api) {
+			$suggestionSessionStore += 1;
 			api.scrollTo(0);
 			$progressStore = 0;
 			$textContent = '';
@@ -113,6 +115,7 @@
 	}
 	function backToTheStartModified() {
 		if (api) {
+			$suggestionSessionStore += 1;
 			api.scrollTo(0);
 			$progressStore = 0;
 			$aiSuggestions = [];

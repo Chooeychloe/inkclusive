@@ -16,7 +16,7 @@
 	import { waitStore } from '$lib/stores/waitStore';
 	import { getCount } from '../../services/countService';
 	import { countStore } from '$lib/stores/countStore';
-	import { ChevronDown, ChevronUp, Trash2 } from '@lucide/svelte';
+	import { ChevronDown, ChevronUp, Trash2, Undo2, Redo2, Check } from '@lucide/svelte';
 	const apiUrl = `${env.PUBLIC_BACKEND_URL?.replace(/\/+$/, '') ?? ''}/api/v1/`;
 
 	let isCompact = $state<boolean>(false);
@@ -24,12 +24,24 @@
 		suggestion,
 		removeMe,
 		index,
-		ignoreMe
+		ignoreMe,
+		historyItem = false,
+		applied = false,
+		canUndo = false,
+		canRedo = false,
+		undoApplied = () => {},
+		redoApplied = () => {}
 	}: {
 		suggestion: TSuggestion;
 		removeMe: (index: number, correctionString: string) => void;
 		index: number;
 		ignoreMe: (index: number, ignoreString: string) => void;
+		historyItem?: boolean;
+		applied?: boolean;
+		canUndo?: boolean;
+		canRedo?: boolean;
+		undoApplied?: () => void;
+		redoApplied?: () => void;
 	} = $props();
 
 	let isLoading = $state<boolean>(false);
@@ -186,6 +198,12 @@
 			</Card.Title>
 		</Card.Header>
 		<Card.Content class="space-y-3 p-3">
+			{#if historyItem}
+				<div class="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300" role="status">
+					<Check class="size-4" aria-hidden="true" />
+					<span>{applied ? `Applied: ${suggestion.chosenReplacement}` : `Undone: ${suggestion.chosenReplacement}`}</span>
+				</div>
+			{/if}
 			<div class="space-y-1">
 				<p class="text-[11px] font-semibold uppercase tracking-wide text-destructive">Original wording</p>
 				<p class="break-words text-sm leading-relaxed text-foreground">{suggestion.originalText}</p>
@@ -201,6 +219,9 @@
 			<div class="space-y-1.5">
 				<p class="text-[11px] font-semibold uppercase tracking-wide text-primary">Suggested revision</p>
 				<div class="flex w-full flex-col gap-2">
+				{#if historyItem}
+					<p class="break-words rounded-lg border border-primary/20 bg-primary/5 p-2 text-sm">{suggestion.chosenReplacement}</p>
+				{:else}
 				{#each suggestion.replacements as item}
 					<button
 						aria-label={`Replace ${suggestion.originalText} with ${item}`}
@@ -219,9 +240,20 @@
 						</span>
 					</button>
 				{/each}
+				{/if}
 				</div>
 			</div>
 		</Card.Content>
+		{#if historyItem}
+			<Card.Footer class="flex justify-end gap-2 px-3 pb-3 pt-0">
+				<Button variant="outline" size="sm" disabled={!canUndo || $waitStore} onclick={undoApplied}>
+					<Undo2 class="mr-1 size-4" aria-hidden="true" />Undo
+				</Button>
+				<Button variant="outline" size="sm" disabled={!canRedo || $waitStore} onclick={redoApplied}>
+					<Redo2 class="mr-1 size-4" aria-hidden="true" />Redo
+				</Button>
+			</Card.Footer>
+		{:else}
 		<Card.Footer class="flex flex-col items-center justify-start gap-2 px-3 pb-3 pt-0">
 			<Button
 				variant="outline"
@@ -236,6 +268,7 @@
 				}}>Ignore</Button
 			>
 		</Card.Footer>
+		{/if}
 	{:else}
 		<!-- compact vers -->
 		<Card.Content class="flex min-w-0 items-center gap-2 px-3 py-2">

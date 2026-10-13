@@ -6,6 +6,6 @@
 
 	<p class="flex items-center gap-2 text-center sm:text-right">
 		<img src="/dcs-logo.svg" alt="Department of Computer Studies logo" class="size-7 shrink-0 rounded-md border border-border bg-white object-contain p-0.5" />
-		<span>Developed by the instructors of the Department of Computer Studies at CvSU Bacoor City Campus.</span>
+		<span>Developed by the Department of Computer Studies at CvSU Bacoor City Campus.</span>
 	</p>
 </footer>

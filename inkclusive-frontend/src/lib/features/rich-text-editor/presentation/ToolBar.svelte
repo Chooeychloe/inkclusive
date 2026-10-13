@@ -257,8 +257,8 @@
 			>
 		</div>
 		<div class="flex items-center border-l border-border pl-1">
-			<Button size="icon" class="h-8 w-8" variant="ghost" aria-label="Undo" title="Undo" onclick={() => undo(view.state, view.dispatch)}><Undo2 /></Button>
-			<Button size="icon" class="h-8 w-8" variant="ghost" aria-label="Redo" title="Redo" onclick={() => redo(view.state, view.dispatch)}><Redo2 /></Button>
+			<Button size="icon" class="h-8 w-8" variant="ghost" aria-label="Undo" title="Undo" onclick={() => undo(view.state, (transaction) => view.dispatch(transaction))}><Undo2 /></Button>
+			<Button size="icon" class="h-8 w-8" variant="ghost" aria-label="Redo" title="Redo" onclick={() => redo(view.state, (transaction) => view.dispatch(transaction))}><Redo2 /></Button>
 		</div>
 	</div>
 
@@ -307,12 +307,12 @@
 						<DropdownMenu.Trigger><Button variant="ghost" class="h-8 gap-1 px-2 text-xs" style={`color:${currentColor}`} aria-label="Text color" title="Text color"><span class="h-4 w-4 rounded border border-border" style={`background-color:${currentColor}`}></span><span class="hidden sm:inline">Text color</span><ChevronDown /></Button></DropdownMenu.Trigger>
 						<DropdownMenu.Content><DropdownMenu.Group><DropdownMenu.Label>Text color</DropdownMenu.Label><DropdownMenu.Separator />
 							<DropdownMenu.Item onclick={() => setColor('black')}>Black</DropdownMenu.Item>
-							<DropdownMenu.Item onclick={() => setColor('oklch(57.7% 0.245 27.325)')}>Red</DropdownMenu.Item>
-							<DropdownMenu.Item onclick={() => setColor('oklch(64.6% 0.222 41.116)')}>Orange</DropdownMenu.Item>
-							<DropdownMenu.Item onclick={() => setColor('oklch(79.5% 0.184 86.047)')}>Yellow</DropdownMenu.Item>
-							<DropdownMenu.Item onclick={() => setColor('oklch(52.7% 0.154 150.069)')}>Green</DropdownMenu.Item>
-							<DropdownMenu.Item onclick={() => setColor('oklch(54.6% 0.245 262.881)')}>Blue</DropdownMenu.Item>
-							<DropdownMenu.Item onclick={() => setColor('oklch(54.1% 0.281 293.009)')}>Violet</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => setColor('#dc2626')}>Red</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => setColor('#ea580c')}>Orange</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => setColor('#ca8a04')}>Yellow</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => setColor('#16a34a')}>Green</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => setColor('#2563eb')}>Blue</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => setColor('#7c3aed')}>Violet</DropdownMenu.Item>
 						</DropdownMenu.Group></DropdownMenu.Content>
 					</DropdownMenu.Root>
 				</div>

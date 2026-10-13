@@ -22,7 +22,7 @@ New clients should use the versioned `/api/v1` routes. Interactive docs are avai
 | `POST` | `/api/v1/terms/bulk` | Create 1–500 terms in one validated operation. |
 | `DELETE` | `/api/v1/terms` | Delete a list of terms in one operation. |
 
-Analysis bodies accept up to 20,000 characters. Grammar responses include the original and revised text plus correction offsets, explanatory messages, rule identifiers, and replacements. Offsets refer to the submitted text exactly; leading and trailing whitespace is preserved. Term mutations return validation errors as `422`, duplicate terms as `409`, and missing terms as `404`. Analysis routes return `429` with a `Retry-After` header when the per-process limit of 10 analysis requests per 30 seconds is reached; unavailable analyzers return `503`.
+Analysis bodies accept 1–20,000 non-whitespace characters; extra JSON fields are rejected. The optional `pronoun_map` accepts up to 100 name keys with values `gender_fair`, `female`, or `male`. Grammar and gender-fair responses include original/revised text and correction ranges (`character_offset` and `character_endset`, a half-open range into the submitted text). Grammar corrections include the message, category, rule ID, and up to five replacements; gender-fair corrections also include rationale and examples. Leading and trailing whitespace is preserved. The returned `count` is incremented by successful GFL analysis requests only; grammar requests do not increment it. Term mutations return validation errors as `422`, duplicate terms as `409`, and missing terms as `404`. Analysis routes return `429` with a `Retry-After` header when the per-process limit of 10 analysis requests per 30 seconds is reached; unavailable analyzers return `503`.
 
 Example request bodies:
 
@@ -38,6 +38,63 @@ Example request bodies:
 {"term":"chairman","options":["chairperson","chair"],"category":"Job title","guidance":"Use a role name when gender is not relevant.","examples":["The chair opened the meeting."]}
 ```
 
+### Language analysis examples
+
+Grammar checking sends the submitted text to the local LanguageTool server through `language-tool-python`. LanguageTool returns matches with source offsets, a message, category, rule ID, and candidate replacements. Inkclusive converts those matches into the versioned response shape:
+
+```http
+POST /api/v1/grammar
+Content-Type: application/json
+```
+
+```json
+{"prompt":"She go to school."}
+```
+
+Illustrative response (the exact wording and replacements depend on LanguageTool's rules and version):
+
+```json
+{
+  "original_text": "She go to school.",
+  "revised_text": "She goes to school.",
+  "corrections": [{
+    "character_offset": 4,
+    "character_endset": 6,
+    "original_text": "go",
+    "message": "Example grammar explanation",
+    "rationale": "Example grammar explanation",
+    "category": "GRAMMAR",
+    "rule_id": "EXAMPLE_RULE",
+    "replacements": ["goes"]
+  }]
+}
+```
+
+Gender-fair analysis runs spaCy's `en_core_web_sm` model once on the text, then applies Inkclusive's own detectors: configured term-library phrases, adjective+noun patterns, gendered word pairs, pronouns, and certain possessive constructions. It does not call an AI or a remote language service. For example, the `pronoun_map` explicitly links Alex to the gender-fair pronoun set:
+
+```http
+POST /api/v1/gfl
+Content-Type: application/json
+```
+
+```json
+{"prompt":"Alex said he would bring his notes.","pronoun_map":{"Alex":"gender_fair"}}
+```
+
+```json
+{
+  "original_text": "Alex said he would bring his notes.",
+  "revised_text": "Alex said they would bring their notes.",
+  "corrections": [
+    {"word_index":2,"character_offset":10,"character_endset":12,"original_text":"he","replacements":["they"],"message":"This wording may unnecessarily imply gender; consider a neutral alternative when gender is not relevant.","rationale":"This wording may unnecessarily imply gender; consider a neutral alternative when gender is not relevant.","category":"Gender-fair language","rule_id":"GFL_LANGUAGE_PATTERN","examples":[]},
+    {"word_index":5,"character_offset":25,"character_endset":28,"original_text":"his","replacements":["their"],"message":"This wording may unnecessarily imply gender; consider a neutral alternative when gender is not relevant.","rationale":"This wording may unnecessarily imply gender; consider a neutral alternative when gender is not relevant.","category":"Gender-fair language","rule_id":"GFL_LANGUAGE_PATTERN","examples":[]}
+  ],
+  "count": 1
+}
+```
+
+The checker builds `revised_text` using the first replacement in each correction; the API also returns alternatives so the user can choose. The editor applies accepted edits using the character ranges. Pronoun association is heuristic, and the gender-pair and term-library rules can flag wording without resolving its context; writers review suggestions before applying them.
+
 The previous unversioned routes remain as compatibility aliases but are omitted from OpenAPI. The unversioned `GET /terms` keeps its older term-to-options response. The old count mutation route has been removed; the analysis counter is read-only over HTTP.
 
 ## Request flow and storage
@@ -46,7 +103,7 @@ The web client posts the current document text to `/api/v1/grammar`, reviews tho
 
 `main.py` defines the HTTP endpoints and per-client rate limiter. `schemas.py` validates request bodies. `csvCrud.py` reads and writes `gendered_terms.csv`, with one term and its alternatives per row. Additional term category, guidance, and example metadata is stored in `gendered_terms_metadata.json` so the CSV remains readable by the checker. `count.py` manages `count.csv`.
 
-The term CSV and metadata JSON must be backed up together. The frontend's local draft is stored in the user's browser and is not sent to this service unless the user runs a language check.
+The term CSV and metadata JSON must be backed up together. `count.csv` stores the GFL request count. These files are accessed relative to the backend's working directory. The frontend's current local draft is stored in the user's browser and is not sent to this service unless the user runs a language check.
 
 ## Local setup
 

@@ -8,27 +8,72 @@
 	import { ArrowRight, Check, Languages, LoaderCircle, Pencil } from '@lucide/svelte';
 	import { ignoreGrammarStore } from '$lib/stores/ignoreStore';
 	import { waitStore } from '$lib/stores/waitStore';
+import { suggestionSessionStore } from '$lib/stores/suggestionSessionStore';
 
 	let {
 		nextSlide,
 		backToTheStart
 	}: { nextSlide: () => Promise<void>; backToTheStart: () => void } = $props();
 	let suggestionsReference = $state<TSuggestion[]>($aiSuggestions);
+	let appliedSuggestions = $state<{ suggestion: TSuggestion; applied: boolean; currentOffset: number }[]>([]);
+	let reviewTab = $state<'pending' | 'applied'>('pending');
+	let lastSuggestionSession = $state($suggestionSessionStore);
 	let hasSuggestions = $derived(suggestionsReference.length > 0);
 	let isLoading = $state(false);
 
 	function removeMe(index: number, correctionString: string) {
 		const suggestion = { ...$aiSuggestions[index], chosenReplacement: correctionString };
+		shiftAppliedOffsets(suggestion.offSet, suggestion.originalText.length, correctionString.length);
+		appliedSuggestions = [...appliedSuggestions.filter((item) => item.applied), { suggestion, applied: true, currentOffset: suggestion.offSet }];
 		$replaceStore = [suggestion];
-		$aiSuggestions.splice(index, 1);
-		suggestionsReference.splice(index, 1);
+		$aiSuggestions = $aiSuggestions.filter((_, itemIndex) => itemIndex !== index);
+		reviewTab = 'applied';
+	}
+
+	function shiftAppliedOffsets(position: number, oldLength: number, newLength: number) {
+		const delta = newLength - oldLength;
+		if (delta === 0) return;
+		appliedSuggestions = appliedSuggestions.map((item) => item.currentOffset > position
+			? { ...item, currentOffset: item.currentOffset + delta }
+			: item);
 	}
 
 	function applyAllChanges() {
-		$replaceStore = [...$aiSuggestions]
+		const selected = [...$aiSuggestions]
 			.sort((a, b) => b.offSet - a.offSet)
 			.map((suggestion) => ({ ...suggestion, chosenReplacement: suggestion.replacements[0] }));
+		let nextApplied = appliedSuggestions.filter((item) => item.applied);
+		for (const suggestion of selected) {
+			const chosen = suggestion.chosenReplacement;
+			const delta = chosen.length - suggestion.originalText.length;
+			nextApplied = nextApplied.map((item) => item.currentOffset > suggestion.offSet
+				? { ...item, currentOffset: item.currentOffset + delta }
+				: item);
+			nextApplied.push({ suggestion, applied: true, currentOffset: suggestion.offSet });
+		}
+		appliedSuggestions = nextApplied;
+		$replaceStore = selected;
 		$aiSuggestions = [];
+		reviewTab = 'applied';
+	}
+
+	function undoApplied(index: number) {
+		const item = appliedSuggestions[index];
+		if (!item?.applied) return;
+		const { suggestion, currentOffset } = item;
+		$replaceStore = [{ ...suggestion, offSet: currentOffset, endSet: currentOffset + suggestion.chosenReplacement.length, chosenReplacement: suggestion.originalText }];
+		shiftAppliedOffsets(currentOffset, suggestion.chosenReplacement.length, suggestion.originalText.length);
+		appliedSuggestions[index] = { ...item, applied: false };
+		appliedSuggestions = [...appliedSuggestions];
+	}
+	function redoApplied(index: number) {
+		const item = appliedSuggestions[index];
+		if (!item || item.applied) return;
+		const { suggestion, currentOffset } = item;
+		$replaceStore = [{ ...suggestion, offSet: currentOffset, endSet: currentOffset + suggestion.originalText.length, chosenReplacement: suggestion.chosenReplacement }];
+		shiftAppliedOffsets(currentOffset, suggestion.originalText.length, suggestion.chosenReplacement.length);
+		appliedSuggestions[index] = { ...item, applied: true };
+		appliedSuggestions = [...appliedSuggestions];
 	}
 
 	function ignoreMe(index: number, ignoreString: string) {
@@ -37,6 +82,14 @@
 		if (!$ignoreGrammarStore.includes(ignoreString)) $ignoreGrammarStore.push(ignoreString);
 		$aiSuggestions = [...$aiSuggestions.filter((value) => value.originalText !== ignoreString)];
 	}
+
+	$effect(() => {
+		if ($suggestionSessionStore !== lastSuggestionSession) {
+			lastSuggestionSession = $suggestionSessionStore;
+			appliedSuggestions = [];
+			reviewTab = 'pending';
+		}
+	});
 
 	$effect(() => {
 		suggestionsReference = $aiSuggestions;
@@ -102,20 +155,24 @@
 
 	{#key $ignoreGrammarStore}
 		{#key $aiSuggestions}
-			{#if hasSuggestions}
-				{#each suggestionsReference as payload, index}
-					{#if !$ignoreGrammarStore.includes(payload.originalText)}
-						<SuggestionCard suggestion={payload} {index} {removeMe} {ignoreMe} />
-					{/if}
+			<div class="mb-3 grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted/50 p-1" role="tablist" aria-label="Suggestion lists">
+				<button role="tab" aria-selected={reviewTab === 'pending'} class="rounded-md px-3 py-2 text-sm font-medium {reviewTab === 'pending' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}" onclick={() => (reviewTab = 'pending')}>Suggestions ({suggestionsReference.length})</button>
+				<button role="tab" aria-selected={reviewTab === 'applied'} class="rounded-md px-3 py-2 text-sm font-medium {reviewTab === 'applied' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}" onclick={() => (reviewTab = 'applied')}>Applied ({appliedSuggestions.length})</button>
+			</div>
+			{#if reviewTab === 'pending'}
+				{#if hasSuggestions}
+					{#each suggestionsReference as payload, index}
+						{#if !$ignoreGrammarStore.includes(payload.originalText)}<SuggestionCard suggestion={payload} {index} {removeMe} {ignoreMe} />{/if}
+					{/each}
+				{:else}
+					<div class="rounded-xl border border-dashed border-border bg-card/60 px-4 py-6 text-center"><p class="text-sm font-medium text-foreground">No pending suggestions</p><p class="mt-1 text-xs text-muted-foreground">Open Applied to undo or redo a correction.</p></div>
+				{/if}
+			{:else if appliedSuggestions.length}
+				{#each appliedSuggestions as item, index}
+					<SuggestionCard suggestion={item.suggestion} index={index} removeMe={() => {}} ignoreMe={() => {}} historyItem applied={item.applied} canUndo={item.applied} canRedo={!item.applied} undoApplied={() => undoApplied(index)} redoApplied={() => redoApplied(index)} />
 				{/each}
 			{:else}
-				<div class="rounded-xl border border-dashed border-border bg-card/60 px-4 py-6 text-center">
-					<div class="mx-auto mb-2 flex size-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-						<Check class="size-5" aria-hidden="true" />
-					</div>
-					<p class="text-sm font-medium text-foreground">All clear</p>
-					<p class="mt-1 text-xs text-muted-foreground">Your grammar suggestions have been reviewed.</p>
-				</div>
+				<div class="rounded-xl border border-dashed border-border bg-card/60 px-4 py-6 text-center"><p class="text-sm font-medium text-foreground">No applied suggestions yet</p></div>
 			{/if}
 		{/key}
 	{/key}

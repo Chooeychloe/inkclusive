@@ -6,6 +6,7 @@
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
 
 	let history = $state<History[]>([]);
+	let historyLoaded = $state(false);
 
 	let manager = $state({
 		manager: null as null | InstanceType<typeof import('./historyManager').HistoryManager>
@@ -14,6 +15,7 @@
 		const { HistoryManager } = await import('./historyManager');
 		manager.manager = new HistoryManager();
 		history = (await manager.manager.getAllStore()).reverse();
+		historyLoaded = true;
 	});
 	async function deleteFunc(id: number) {
 		await manager.manager!.deleteStore(id);
@@ -25,6 +27,7 @@
 	<div class="flex w-full max-w-5xl shrink-0 items-center justify-end gap-3 px-4 py-4 sm:px-6">
 		<Button
 			variant="destructive"
+			disabled={!historyLoaded || history.length === 0}
 			onclick={async () => {
 				await manager.manager!.clearAll();
 				history = (await manager.manager!.getAllStore()).reverse();
