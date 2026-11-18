@@ -169,7 +169,7 @@ CORS_ORIGINS=https://<your-frontend-domain>
 
 The service copies the bundled starter term CSV and metadata into `/data` on first boot when they are absent. Term edits, metadata, request counts, and changed admin credentials then stay on the volume between deployments. Keep one backend replica while using this file-based storage. Back up the volume periodically.
 
-The frontend currently uses SvelteKit's Netlify adapter, so deploy it to Netlify for now. Set its `PUBLIC_BACKEND_URL` to the public Railway backend URL (for example, `https://your-api.up.railway.app`) and set `CORS_ORIGINS` to the exact deployed frontend origin. The frontend's server routes proxy admin requests to the backend; do not put admin secrets in frontend variables. Use HTTPS for both services.
+The frontend can run as a second Railway service from the same repository. Set its **Root Directory** to `/inkclusive-frontend`; its Dockerfile builds and runs the SvelteKit Node server. Set its health check path to `/write`, then set `PUBLIC_BACKEND_URL` to the backend's public Railway URL. After generating the frontend's public domain, set `ORIGIN` on the frontend to that full HTTPS origin and set `CORS_ORIGINS` here to the same origin (scheme and hostname, no path or trailing slash). The frontend's server routes proxy admin requests to the backend; do not put admin secrets in frontend variables. Use HTTPS for both services. See the [frontend deployment steps](../inkclusive-frontend/README.md#deploy-both-services-on-railway).
 
 ## Important deployment note
 

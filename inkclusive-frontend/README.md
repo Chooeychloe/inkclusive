@@ -27,7 +27,7 @@ The former `/dashboard/editor`, `/dashboard/scan`, and `/dashboard/history` URLs
 
 | Library | Use in Inkclusive |
 | --- | --- |
-| Svelte 5, SvelteKit, Vite, TypeScript | UI components, routes and server endpoints, development server, and application types. Netlify adapter packages the SvelteKit app for deployment. |
+| Svelte 5, SvelteKit, Vite, TypeScript | UI components, routes and server endpoints, development server, and application types. The Node adapter packages the SvelteKit app as a server. |
 | ProseMirror packages (`prosemirror-*`) | Structured rich-text editor, document schema, formatting commands, keyboard shortcuts, undo/redo history, inline decorations, and applying suggestions at character ranges. |
 | `pdfjs-dist` | Reads selectable text from PDF pages during Scan. It does not perform OCR on image-only PDFs. |
 | `tesseract.js` | OCR for supported image uploads; returns recognized text for the editor. |
@@ -71,47 +71,23 @@ npm test            # Vitest unit tests
 npm run lint        # ESLint and Prettier checks
 ```
 
-The client uses Tailwind CSS 4 through its Vite plugin, the SvelteKit Netlify adapter, ProseMirror, TanStack Table, Zod, PDF.js, Tesseract.js, Mammoth, and jsPDF. Tailwind setup is in `vite.config.ts`, `src/app.css`, and `tailwind.config.ts`.
-
-## Configuration
-
-| Variable | Purpose |
-| --- | --- |
-| `PUBLIC_BACKEND_URL` | Browser-visible base URL of the FastAPI service; a trailing slash is optional. |
-| `ADMIN_PASSWORD` | Set on the backend; used by the API to authenticate admin sign-in. |
-| `ADMIN_TOKEN_SECRET` | Set on the backend; random secret of at least 32 bytes used to sign expiring admin tokens. |
-
-Netlify uses `npm run build`; its adapter output is configured in `netlify.toml`.
-
-## Setup
-
-Use Node.js 20 or newer. Set `PUBLIC_BACKEND_URL` to the backend base URL; a trailing slash is optional. Configure admin credentials on the backend as described in its README.
-
-```sh
-npm ci
-npm run dev
-```
-
-The dev server normally runs at `http://localhost:5173`. For local backend setup, see the [backend README](../inkclusive-backend/README.md).
-
-## Commands
-
-```sh
-npm run check       # Svelte and TypeScript diagnostics
-npm run build       # production build
-npm run preview     # serve the production build locally
-npm test            # Vitest unit tests
-npm run lint        # ESLint and Prettier checks
-```
-
-The app uses Tailwind CSS 4 through its Vite plugin, SvelteKit's Netlify adapter, ProseMirror, TanStack Table, Zod, PDF.js, Tesseract.js, Mammoth, and jsPDF. Tailwind's project setup is in `vite.config.ts`, `src/app.css`, and `tailwind.config.ts`, following the [Tailwind SvelteKit guide](https://tailwindcss.com/docs/installation/framework-guides/sveltekit).
+The client uses Tailwind CSS 4 through its Vite plugin, the SvelteKit Node adapter, ProseMirror, TanStack Table, Zod, PDF.js, Tesseract.js, Mammoth, and jsPDF. Tailwind setup is in `vite.config.ts`, `src/app.css`, and `tailwind.config.ts`.
 
 ## Configuration
 
 | Variable | Purpose |
 | --- | --- |
 | `PUBLIC_BACKEND_URL` | Base URL of the FastAPI server; a trailing slash is optional. The browser uses same-origin SvelteKit proxy routes for admin requests. |
-| `ADMIN_PASSWORD` | Configure on the backend only; it is checked by the backend admin login endpoint. |
-| `ADMIN_TOKEN_SECRET` | Configure on the backend only; random secret of at least 32 bytes used to sign admin session tokens. |
+| `ORIGIN` | Set on Railway to the frontend's public HTTPS origin (for example, `https://inkclusive.up.railway.app`) as SvelteKit's canonical origin. |
 
-The Netlify build uses `npm run build` and publishes the adapter output as configured in `netlify.toml`.
+Admin credentials (`ADMIN_PASSWORD`, `ADMIN_TOKEN_SECRET`) belong on the backend service only.
+
+## Deploy both services on Railway
+
+Create two services from this repository. Railway uses each service's root directory to build a monorepo component. See [Railway's monorepo guide](https://docs.railway.com/deployments/monorepo).
+
+1. Create the backend service with root directory `/inkclusive-backend`. Attach a persistent volume at `/data`, add the variables in the [backend deployment guide](../inkclusive-backend/README.md#railway-deployment), set health check `/api/v1/health`, deploy, and generate a public domain.
+2. Create the frontend service with root directory `/inkclusive-frontend`. Its Dockerfile builds and starts the SvelteKit Node server. Set health check `/write` and add `PUBLIC_BACKEND_URL` using the backend's public URL. Deploy and generate a public domain.
+3. Add `ORIGIN` to the frontend variables using its full public HTTPS origin. Set backend `CORS_ORIGINS` to that same origin (scheme and hostname, with no path or trailing slash), then redeploy the backend.
+
+The frontend Dockerfile uses SvelteKit's Node adapter and starts with `node build`; Railway supplies the listening `PORT`. It also trusts Railway's `X-Forwarded-Host` and `X-Forwarded-Proto` headers so same-origin admin requests use the public HTTPS URL. SvelteKit documents the Node server's [proxy settings](https://svelte.dev/docs/kit/adapter-node), and Railway documents the [forwarded request headers](https://docs.railway.com/networking/public-networking/specs-and-limits).

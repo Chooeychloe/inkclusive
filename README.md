@@ -64,4 +64,4 @@ npm run build
 npm test
 ```
 
-The frontend deploy configuration uses SvelteKit's Netlify adapter. The backend includes a Dockerfile and a Docker Compose setup.
+The frontend and backend each include a Dockerfile for separate Railway services from this repository. Start with the [frontend Railway deployment guide](inkclusive-frontend/README.md#deploy-both-services-on-railway); the [backend guide](inkclusive-backend/README.md#railway-deployment) lists its volume and secret variables. The backend also includes a Docker Compose setup for local development.
