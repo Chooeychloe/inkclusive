@@ -41,7 +41,9 @@ import { suggestionSessionStore } from '$lib/stores/suggestionSessionStore';
 	function applyAllChanges() {
 		const selected = [...$aiSuggestions]
 			.sort((a, b) => b.offSet - a.offSet)
+			.filter((suggestion) => typeof suggestion.replacements?.[0] === 'string')
 			.map((suggestion) => ({ ...suggestion, chosenReplacement: suggestion.replacements[0] }));
+		if (!selected.length) return;
 		let nextApplied = appliedSuggestions.filter((item) => item.applied);
 		for (const suggestion of selected) {
 			const chosen = suggestion.chosenReplacement;

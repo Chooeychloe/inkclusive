@@ -39,10 +39,12 @@
 	}
 
 	function applyAllChanges() {
-		if ($aiSuggestions[0]?.correctionType === 'gfl') $GLFScore += $aiSuggestions.length;
 		const selected = [...$aiSuggestions]
 			.sort((a, b) => b.offSet - a.offSet)
+			.filter((suggestion) => typeof suggestion.replacements?.[0] === 'string')
 			.map((suggestion) => ({ ...suggestion, chosenReplacement: suggestion.replacements[0] }));
+		if (!selected.length) return;
+		$GLFScore += selected.filter((suggestion) => suggestion.correctionType === 'gfl').length;
 		let nextApplied = appliedSuggestions.filter((item) => item.applied);
 		for (const suggestion of selected) {
 			const delta = suggestion.chosenReplacement.length - suggestion.originalText.length;
