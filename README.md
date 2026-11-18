@@ -28,6 +28,8 @@ flowchart LR
 5. The current draft is autosaved in browser `localStorage`, while completed review sessions are stored in IndexedDB. The backend's analysis count and term alternatives are stored in CSV files; term guidance, categories, and examples are stored in a companion JSON file.
 6. `/admin` provides a password prompt and UI for managing terms. The backend verifies the password, issues an expiring bearer token, and requires that token for all term-library endpoints. The SvelteKit server stores it in an HttpOnly cookie and proxies admin requests. Admin sign-in is rate-limited, and password changes invalidate existing tokens.
 
+For step-by-step instructions for writers and administrators, see the [Inkclusive user and administrator guide](USER_GUIDE.md).
+
 ## Run locally
 
 Start the backend first. It needs Python 3.10 or newer, the spaCy English model, and Java 17 or newer for LanguageTool's local server.

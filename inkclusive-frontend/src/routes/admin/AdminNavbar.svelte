@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { ChevronDown, Eye, EyeOff, KeyRound, LogOut, Moon, ShieldCheck, Sun } from '@lucide/svelte';
+	import { BookOpen, ChevronDown, Eye, EyeOff, KeyRound, LogOut, Moon, ShieldCheck, Sun } from '@lucide/svelte';
 	import { mode, toggleMode } from 'mode-watcher';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
-	let { onLogout }: { onLogout: () => void } = $props();
+	let { onLogout, onOpenGuide }: { onLogout: () => void; onOpenGuide: () => void } = $props();
 	let passwordDialogOpen = $state(false);
 	let currentPassword = $state('');
 	let newPassword = $state('');
@@ -84,6 +84,9 @@
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item class="h-10 cursor-pointer" onclick={toggleMode}>
 					{#if $mode === 'dark'}<Sun aria-hidden="true" /><span>Switch to light theme</span>{:else}<Moon aria-hidden="true" /><span>Switch to dark theme</span>{/if}
+				</DropdownMenu.Item>
+				<DropdownMenu.Item class="h-10 cursor-pointer" onclick={onOpenGuide}>
+					<BookOpen aria-hidden="true" /><span>Admin guide</span>
 				</DropdownMenu.Item>
 				<DropdownMenu.Item class="h-10 cursor-pointer" onclick={() => { passwordError = ''; passwordSuccess = false; passwordDialogOpen = true; }}>
 					<KeyRound aria-hidden="true" /><span>Change password</span>

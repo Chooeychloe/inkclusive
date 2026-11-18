@@ -10,6 +10,9 @@
 	import CommandsDialog from '$lib/components/CommandsDialog.svelte';
 	import HelpDialog from '$lib/components/HelpDialog.svelte';
 	import InfoDialog from '$lib/components/InfoDialog.svelte';
+	import OnboardingDialog from '$lib/components/OnboardingDialog.svelte';
+	import { onMount, tick } from 'svelte';
+	import { goto } from '$app/navigation';
 	import {
 		FilePenLine,
 		ScanSearch,
@@ -27,6 +30,17 @@
 	let commandsOpen = $state(false);
 	let helpOpen = $state(false);
 	let infoOpen = $state(false);
+	let onboardingOpen = $state(false);
+	async function openDocumentation() {
+		helpOpen = false;
+		await tick();
+		await goto('/help');
+	}
+	onMount(() => {
+		try {
+			if (!localStorage.getItem('inkclusive-onboarding-writer-seen')) onboardingOpen = true;
+		} catch { onboardingOpen = true; }
+	});
 
 </script>
 
@@ -48,6 +62,7 @@
 
 				<nav aria-label="Workspace" class="flex flex-col gap-2 px-1">
 					<a
+						id="workspace-write"
 						href="/write"
 						aria-current={$page.url.pathname === '/write' ? 'page' : undefined}
 						class={cn(
@@ -67,6 +82,7 @@
 					</a>
 
 					<a
+						id="workspace-scan"
 						href="/scan"
 						aria-current={$page.url.pathname === '/scan' ? 'page' : undefined}
 						class={cn(
@@ -86,6 +102,7 @@
 					</a>
 
 					<a
+						id="workspace-history"
 						href="/history"
 						aria-current={$page.url.pathname === '/history' ? 'page' : undefined}
 						class={cn(
@@ -140,6 +157,10 @@
 							<HeartHandshake class="size-4 text-primary" aria-hidden="true" />
 							<span>Help & guidance</span>
 						</DropdownMenu.Item>
+						<DropdownMenu.Item class="h-10 cursor-pointer gap-2" onclick={() => (onboardingOpen = true)}>
+							<Keyboard class="size-4 text-primary" aria-hidden="true" />
+							<span>Getting started guide</span>
+						</DropdownMenu.Item>
 						<DropdownMenu.Item class="h-10 cursor-pointer gap-2" onclick={() => (infoOpen = true)}>
 							<Info class="size-4 text-muted-foreground" aria-hidden="true" />
 							<span>About Inkclusive</span>
@@ -162,8 +183,9 @@
 	<CommandsDialog />
 </Dialog.Root>
 <Dialog.Root bind:open={helpOpen}>
-	<HelpDialog />
+	<HelpDialog onViewDocumentation={openDocumentation} />
 </Dialog.Root>
 <Dialog.Root bind:open={infoOpen}>
 	<InfoDialog />
 </Dialog.Root>
+<OnboardingDialog audience="writer" bind:open={onboardingOpen} />

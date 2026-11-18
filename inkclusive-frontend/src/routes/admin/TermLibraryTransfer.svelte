@@ -43,7 +43,7 @@
 	}
 </script>
 
-<div class="flex flex-wrap gap-2">
+<div id="admin-library-transfer" class="flex flex-wrap gap-2">
 	<Button variant="outline" class="gap-2" onclick={exportTerms} disabled={busy}><Download class="size-4" />Export CSV</Button>
 	<label class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground {busy ? 'pointer-events-none opacity-50' : ''}"><FileUp class="size-4" />Import CSV<input class="sr-only" type="file" accept=".csv,text/csv" onchange={importTerms} disabled={busy} /></label>
 </div>

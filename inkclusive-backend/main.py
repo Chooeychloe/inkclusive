@@ -1,5 +1,7 @@
 import os
+import shutil
 import threading
+from pathlib import Path
 from math import ceil
 from time import time
 
@@ -36,8 +38,18 @@ from schemas import (
 load_dotenv()
 
 API_PREFIX = "/api/v1"
-COUNTER_FILE = "count.csv"
-TERMS_CSV = "gendered_terms.csv"
+DATA_DIR = Path(os.getenv("INKCLUSIVE_DATA_DIR", ".")).resolve()
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+for data_filename in ("gendered_terms.csv", "gendered_terms_metadata.json"):
+	data_path = DATA_DIR / data_filename
+	seed_path = Path(__file__).resolve().parent / data_filename
+	if not data_path.exists() and seed_path.is_file() and seed_path.resolve() != data_path:
+		shutil.copy2(seed_path, data_path)
+
+COUNTER_FILE = str(DATA_DIR / "count.csv")
+TERMS_CSV = str(DATA_DIR / "gendered_terms.csv")
+os.environ.setdefault("ADMIN_CREDENTIALS_FILE", str(DATA_DIR / "admin_credentials.json"))
 RATE_LIMIT = 10
 TIME_WINDOW = 30
 

@@ -24,5 +24,5 @@ COPY . .
 # Make port 80 available to the world outside this container
 EXPOSE 80
 
-# Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+# Run on Railway's assigned port, with port 80 as the local default.
+CMD ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-80}"]

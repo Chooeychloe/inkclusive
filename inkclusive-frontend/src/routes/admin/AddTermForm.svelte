@@ -51,7 +51,7 @@
 </script>
 
 <Dialog.Root open={dialogOpen} onOpenChange={(open) => open ? (dialogOpen = true) : closeDialog()}>
-	<Button variant="outline" class="gap-2" onclick={() => (dialogOpen = true)}><Plus class="size-4" />Add term</Button>
+	<Button id="admin-add-term" variant="outline" class="gap-2" onclick={() => (dialogOpen = true)}><Plus class="size-4" />Add term</Button>
 	<Dialog.Content class="flex max-h-[min(92dvh,860px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
 		<Dialog.Header class="shrink-0 border-b border-border bg-muted/20 px-5 py-5 pr-12 sm:px-7">
 			<div class="flex items-start gap-3">

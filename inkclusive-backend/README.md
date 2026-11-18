@@ -153,6 +153,24 @@ docker compose up --build
 
 Compose passes these values to the container and maps host port 8000 to port 80. Keep the `.env` file private and out of version control.
 
+## Railway deployment
+
+The backend is configured to run as a Railway Docker service. In Railway, create a service from this repository and set its **Root Directory** to `/inkclusive-backend`. In the service settings, set the health check path to `/api/v1/health`. The Docker image listens on Railway's injected `PORT` and defaults to port 80 locally.
+
+Attach one persistent volume to the backend service at `/data`, then set these service variables:
+
+```text
+INKCLUSIVE_DATA_DIR=/data
+ADMIN_CREDENTIALS_FILE=/data/admin_credentials.json
+ADMIN_PASSWORD=<a long, unique initial admin password>
+ADMIN_TOKEN_SECRET=<a random secret of at least 32 bytes>
+CORS_ORIGINS=https://<your-frontend-domain>
+```
+
+The service copies the bundled starter term CSV and metadata into `/data` on first boot when they are absent. Term edits, metadata, request counts, and changed admin credentials then stay on the volume between deployments. Keep one backend replica while using this file-based storage. Back up the volume periodically.
+
+The frontend currently uses SvelteKit's Netlify adapter, so deploy it to Netlify for now. Set its `PUBLIC_BACKEND_URL` to the public Railway backend URL (for example, `https://your-api.up.railway.app`) and set `CORS_ORIGINS` to the exact deployed frontend origin. The frontend's server routes proxy admin requests to the backend; do not put admin secrets in frontend variables. Use HTTPS for both services.
+
 ## Important deployment note
 
 All term-library endpoints, including legacy aliases, require a valid admin bearer token. The admin login is rate-limited to five failed attempts per client IP every 15 minutes. Tokens expire after eight hours. The frontend keeps the token in an HttpOnly, same-site cookie and proxies admin requests to the backend, so browser scripts cannot read the token.

@@ -36,6 +36,7 @@
 	import { bulkDeleteListItem, getTermRecords } from './service.js';
 	import { listStore, refreshStore } from '$lib/stores/refreshStore.js';
 	import { Toaster } from 'svelte-sonner';
+	import OnboardingDialog from '$lib/components/OnboardingDialog.svelte';
 
 	// Admin authentication state
 	let showPasswordDialog = $state(true);
@@ -44,6 +45,13 @@
 	let authError = $state('');
 	let isAuthenticated = $state(false);
 	let isAuthLoading = $state(false);
+	let onboardingOpen = $state(false);
+
+	function showAdminOnboardingIfNew() {
+		try {
+			if (!localStorage.getItem('inkclusive-onboarding-admin-seen')) onboardingOpen = true;
+		} catch { onboardingOpen = true; }
+	}
 
 	let burger = $state<TGenderTermProcessed[]>([]);
 	let burger2 = $state<TGenderTermProcessed[]>([]);
@@ -98,6 +106,7 @@
 			}
 			isAuthenticated = true;
 			showPasswordDialog = false;
+			showAdminOnboardingIfNew();
 			adminPassword = '';
 			await loadEverything();
 		} catch (err) {
@@ -146,6 +155,7 @@
 			applyRecords(records);
 			isAuthenticated = true;
 			showPasswordDialog = false;
+			showAdminOnboardingIfNew();
 		} catch {
 			// No valid secure admin cookie yet; leave the sign-in dialog open.
 		} finally {
@@ -322,7 +332,7 @@
 {#if isAuthenticated}
 	<main class="min-h-[100svh] w-full bg-background text-foreground">
 		{#key $listStore}
-			<AdminNavbar onLogout={logoutAdmin}></AdminNavbar>
+			<AdminNavbar onLogout={logoutAdmin} onOpenGuide={() => (onboardingOpen = true)}></AdminNavbar>
 
 			<div class="mx-auto max-w-[1440px] px-4 py-8 sm:px-8 lg:py-10">
 				<div class="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
@@ -453,7 +463,7 @@
 					</Table.Root>
 					<div class="flex flex-col gap-4 border-t border-border bg-muted/20 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
 						<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
-							<Button size="sm" variant="destructive" onclick={openDeleteDialog} disabled={isLoading || table.getSelectedRowModel().rows.length === 0}>Delete selected ({table.getSelectedRowModel().rows.length})</Button>
+							<Button id="admin-bulk-delete" size="sm" variant="destructive" onclick={openDeleteDialog} disabled={isLoading || table.getSelectedRowModel().rows.length === 0}>Delete selected ({table.getSelectedRowModel().rows.length})</Button>
 							<p class="text-sm text-muted-foreground" aria-live="polite">
 								{#if isLoading}Loading terms…{:else}{table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} selected{/if}
 							</p>
@@ -524,5 +534,6 @@
 				</Dialog.Content>
 			</Dialog.Root>
 		{/key}
-	</main>
+			<OnboardingDialog audience="admin" bind:open={onboardingOpen} />
+		</main>
 {/if}
