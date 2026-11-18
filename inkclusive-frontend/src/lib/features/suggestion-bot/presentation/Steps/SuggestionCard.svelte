@@ -98,7 +98,8 @@
 					);
 					const filteredSuggestions = await (
 						await suggestions
-					).filter((value) => !$ignoreGrammarStore.includes(value.originalText));
+					).filter((value) => value.replacements.some((replacement) => typeof replacement === 'string' && replacement.trim().length > 0)
+						&& !$ignoreGrammarStore.includes(value.originalText));
 					aiSuggestions.set(await filteredSuggestions);
 					$progressStore = 50;
 				} else {
@@ -160,7 +161,7 @@
 						})
 					);
 
-					$aiSuggestions = await suggestions;
+					$aiSuggestions = (await suggestions).filter((value) => value.replacements.some((replacement) => typeof replacement === 'string' && replacement.trim().length > 0));
 					console.log($aiSuggestions);
 				} else {
 					$aiSuggestions = [];

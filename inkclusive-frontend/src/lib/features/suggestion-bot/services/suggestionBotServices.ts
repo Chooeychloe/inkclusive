@@ -63,7 +63,8 @@ export async function grammarCheckService(nextSlide: () => void) {
 
 			const filteredSuggestions = await (
 				await suggestions
-			).filter((value) => !get(ignoreGrammarStore).includes(value.originalText));
+			).filter((value) => value.replacements.some((replacement) => typeof replacement === 'string' && replacement.trim().length > 0)
+				&& !get(ignoreGrammarStore).includes(value.originalText));
 			aiSuggestions.set(await filteredSuggestions);
 			console.log('suggestions', suggestions);
 
@@ -132,7 +133,7 @@ export async function glfCheckService(nextSlide: () => void) {
 					examples: correction.examples
 				})
 			);
-			aiSuggestions.set(await suggestions);
+			aiSuggestions.set((await suggestions).filter((value) => value.replacements.some((replacement) => typeof replacement === 'string' && replacement.trim().length > 0)));
 			nextSlide();
 			progressStore.set(100);
 
