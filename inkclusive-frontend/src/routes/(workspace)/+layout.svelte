@@ -31,6 +31,17 @@
 	let helpOpen = $state(false);
 	let infoOpen = $state(false);
 	let onboardingOpen = $state(false);
+	let logoClickCount = 0;
+	let lastLogoClickAt = 0;
+	function handleLogoClick() {
+		const now = Date.now();
+		logoClickCount = now - lastLogoClickAt > 5000 ? 1 : logoClickCount + 1;
+		lastLogoClickAt = now;
+		if (logoClickCount === 5) {
+			logoClickCount = 0;
+			window.location.assign('/admin');
+		}
+	}
 	async function openDocumentation() {
 		helpOpen = false;
 		await tick();
@@ -54,8 +65,10 @@
 				<div
 					class="flex h-14 items-center justify-center gap-2 border-b border-border bg-muted/50 lg:justify-start"
 				>
-					<img src="/inkclusive.svg" alt="Inkclusive logo" class="ml-1 h-8 w-8 shrink-0 lg:ml-0" />
-					<img src="/inkclusive-wordmark.svg" alt="Inkclusive" class="hidden h-6 w-auto max-w-[9rem] object-contain lg:block" />
+					<button type="button" onclick={handleLogoClick} aria-label="Inkclusive" title="Inkclusive" class="flex h-full items-center justify-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:justify-start">
+						<img src="/inkclusive.svg" alt="" class="ml-1 h-8 w-8 shrink-0 lg:ml-0" />
+						<img src="/inkclusive-wordmark.svg" alt="" class="hidden h-6 w-auto max-w-[9rem] object-contain lg:block" />
+					</button>
 				</div>
 
 			
