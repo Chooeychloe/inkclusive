@@ -141,7 +141,7 @@
 				element: '#File_Label',
 				popover: {
 					side: 'bottom',
-					title: 'Click "Select File" to scan your document'
+						title: 'Select a file to scan your document'
 				}
 			});
 		}
@@ -184,7 +184,7 @@
 			ondragover={(e) => dragOverHandler(e)}
 		>
 			<FolderOpen class="h-24 w-24 text-primary lg:h-[150px] lg:w-[150px]"></FolderOpen>
-			<h3 class="text-center text-lg text-primary">Drag your PDF/DOCX/JPG File Here <br /> OR</h3>
+			<h3 class="text-center text-lg text-primary">Drag and drop a PDF, DOCX, JPG, JPEG, or PNG file here, or use the button below.</h3>
 			<label
 					class="inline-flex items-center justify-center gap-2 rounded-full border border-primary bg-primary px-5 py-2 text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
 				id="File_Label"

@@ -162,32 +162,32 @@ import { editorHistoryStore } from '$lib/stores/editorHistoryStore';
 		steps: [
 			{
 				element: '.step-1',
-				popover: { title: 'Navigation', description: 'This is where you navigate between pages' }
+				popover: { title: 'Navigation', description: 'Use this menu to move between pages.' }
 			},
 			{
 				element: '.step-2',
-				popover: { title: 'Editor', description: 'This is were you write your document!' }
+				popover: { title: 'Editor', description: 'Write your document here.' }
 			},
 			{
 				element: '.step-3',
 				popover: {
 					title: 'Toolbar',
-					description: 'This is the toolbar where you can edit your text with styles!'
+					description: 'Use the toolbar to format your text.'
 				}
 			},
 			{
 				element: '.step-4',
 				popover: {
 					title: 'Suggestion Tab',
-					description: 'This tab contains the AI Suggestions and Preference settings'
+					description: 'Review suggestions and adjust your preferences in this panel.'
 				}
 			},
 			{
 				element: '.step-5',
 				popover: {
-					title: 'Preferred Pronouns',
+					title: 'Pronoun preferences',
 					description:
-						'If you have any people in the document that have preferred pronouns you can add their names here'
+						'Add a person’s name and pronouns here to guide suggestions for that person.'
 				}
 			},
 			{
@@ -195,14 +195,14 @@ import { editorHistoryStore } from '$lib/stores/editorHistoryStore';
 				popover: {
 					title: 'Submit',
 					description:
-						'After writing your document, you can begin scanning for inappropriate use of gender fair langauge'
+						'When you finish writing, run the gender-fair language check.'
 				}
 			},
 			{
 				element: '.step-7',
 				popover: {
-					title: 'Added Info',
-					description: 'For more information please visit these links!'
+					title: 'More information',
+					description: 'Visit these links to learn more.'
 				}
 			}
 		]
@@ -320,7 +320,7 @@ import { editorHistoryStore } from '$lib/stores/editorHistoryStore';
 		class="step-2 min-h-0 w-full flex-1 shadow-inner focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary"
 		onclick={() => {
 			if ($progressStore > 0) {
-				toast.info('You can only edit text during the Write Step');
+				toast.info('You can edit text only during the Write step.');
 			}
 		}}
 	>

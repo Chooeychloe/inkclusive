@@ -57,11 +57,11 @@ const getPageText = async (pdf: PDFJS.PDFDocument, pageNo: number) => {
 
 export async function getTextFromPDF(file: File | null, signal?: AbortSignal) {
 	if (!file) {
-		throw new Error('File not found');
+		throw new Error('The selected PDF file could not be found.');
 	}
 
 	if (file.type !== 'application/pdf') {
-		throw new Error('Invalid PDF type');
+		throw new Error('The selected file is not a valid PDF.');
 	}
 
 	const getPDFText = async (source: ArrayBuffer): Promise<string> => {
@@ -99,6 +99,6 @@ export async function getTextFromPDF(file: File | null, signal?: AbortSignal) {
 
 		return await getPDFText(pdfBuffer);
 	} catch (err) {
-		throw new Error(`Could not get PDF text from PDF: ${err}`);
+		throw new Error(`Could not extract text from the PDF: ${err}`);
 	}
 }

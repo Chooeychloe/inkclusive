@@ -12,7 +12,7 @@ describe('getSuffix', () => {
 
 
 	test('to throw an error on invalid file type in joebiden.js', () => {
-		expect(() => getSuffix('joebiden.js')).toThrowError('Invalid File Type');
+		expect(() => getSuffix('joebiden.js')).toThrowError('This file type is not supported.');
 	});
 
 	test('get the word docx from pdf.docx', () => {

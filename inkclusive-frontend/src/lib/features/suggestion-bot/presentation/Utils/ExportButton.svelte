@@ -48,7 +48,7 @@
 			link.click();
 			URL.revokeObjectURL(url);
 		} else {
-			toast.error('Failed to Export Docx');
+			toast.error('Failed to export the DOCX file.');
 			console.error('Failed to generate docx');
 		}
 	}
@@ -61,7 +61,7 @@
 			'my-2 flex w-full items-center justify-between border border-primary bg-primary p-6 text-base font-bold text-primary-foreground hover:bg-primary/90'
 		)}
 	>
-		<p>Export As</p>
+		<p>Export as</p>
 
 		<Download class="size-5" aria-hidden="true" />
 	</DropdownMenu.Trigger>

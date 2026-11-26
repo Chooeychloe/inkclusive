@@ -162,7 +162,7 @@
 		class="min-h-0 w-full min-w-0 flex-1 shadow-inner focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary"
 		onclick={() => {
 			if ($progressStore > 0) {
-				toast.info('You can only edit text during the Write Step');
+				toast.info('You can edit text only during the Write step.');
 			}
 		}}
 	>

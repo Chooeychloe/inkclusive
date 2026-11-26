@@ -140,7 +140,19 @@
 
 		<div class="flex min-h-0 min-w-0 flex-1 flex-col">
 			<header class="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6">
-				<p class="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">Inkclusive workspace</p>
+				<div class="flex min-w-0 items-center gap-2">
+					<button
+						type="button"
+						onclick={handleLogoClick}
+						aria-label="Inkclusive"
+						title="Inkclusive"
+						class="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+					>
+						<img src="/inkclusive.svg" alt="" class="size-8 shrink-0" />
+						<img src="/inkclusive-wordmark.svg" alt="" class="h-5 w-auto max-w-28 object-contain" />
+					</button>
+					<p class="hidden text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground sm:block">Inkclusive workspace</p>
+				</div>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger
 						class="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
