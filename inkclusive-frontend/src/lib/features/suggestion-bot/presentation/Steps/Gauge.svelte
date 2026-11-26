@@ -37,7 +37,7 @@
 <Card.Root class="w-full">
 	<Card.Header class="p-3">
 		<Card.Title class="border-b border-dashed border-border pb-2 text-center text-xl font-bold"
-			>Gender Fair Analysis</Card.Title
+			>Gender-fair language analysis</Card.Title
 		>
 	</Card.Header>
 	<Card.Content class="flex flex-col items-center justify-center gap-2">
@@ -165,8 +165,7 @@
 		</svg>
 
 		<p class="text-center text-base">
-			{$GLFScore} out of {$textContent.split(' ').length} word/s in the document were found as non-gender
-			fair
+			You reviewed {$GLFScore} gender-fair language suggestions in this {$textContent.trim() ? $textContent.trim().split(/\s+/).length : 0}-word document.
 		</p>
 
 		<Tooltip.Provider>

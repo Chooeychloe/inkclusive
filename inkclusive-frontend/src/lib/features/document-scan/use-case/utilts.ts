@@ -13,7 +13,7 @@ export function getSuffix(fileName: string): 'pdf' | 'docx' | 'jpeg' | 'png' | '
 
 	// Validate suffix
 	if (!suffix) {
-		throw new Error('Invalid File Type');
+		throw new Error('This file type is not supported.');
 	}
 
 	return suffix;

@@ -101,12 +101,12 @@
 	<Card.Root class="my-2">
 		<Card.Header>
 			<Card.Title class="border-b border-dashed border-border pb-2 text-lg font-bold text-foreground"
-				>Inkclusive's Total Scanned Files:</Card.Title
+				>Total documents scanned</Card.Title
 			>
 		</Card.Header>
 		<Card.Content class="text-base text-muted-foreground">
 			<p class="text-center text-base font-bold text-foreground">
-				{$countStore} Scanned Documents
+				{$countStore} documents scanned
 			</p>
 		</Card.Content>
 	</Card.Root>
@@ -114,7 +114,7 @@
 	<Card.Root class="my-2">
 		<Card.Header>
 			<Card.Title class="border-b border-dashed border-border pb-2 text-lg font-bold text-foreground"
-				>Useful Articles:</Card.Title
+				>Helpful resources</Card.Title
 			>
 		</Card.Header>
 		<Card.Content class="text-base text-muted-foreground">
@@ -124,14 +124,14 @@
 						target="_blank"
 						href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2016.00025/full"
 						rel="noopener noreferrer"
-						>How we gender fair language can reduce gender stereotyping and discrimination</a
+						>How gender-fair language can reduce gender stereotyping and discrimination</a
 					>
 				</li>
 				<li class="mt-2 hover:underline">
 					<a
 						target="_blank"
 						href="https://pcieerd.dost.gov.ph/images/gad_corner/Gender-fair-language-a-primer.pdf"
-						rel="noopener noreferrer">What is gender fair language</a
+						rel="noopener noreferrer">What is gender-fair language?</a
 					>
 				</li>
 			</ul>
@@ -141,7 +141,7 @@
 		variant="outline"
 		onclick={backToTheStart}
 		class="my-2 flex w-full items-center border-primary bg-primary p-6 text-base font-bold text-primary-foreground hover:bg-primary/90"
-		><p>Start All Over Again</p>
+		><p>Start over</p>
 
 		<RotateCcw class="size-5" aria-hidden="true" />
 	</Button>

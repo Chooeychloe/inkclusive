@@ -2,12 +2,12 @@ import { createWorker, type Worker } from 'tesseract.js';
 
 export async function ocrToText(file: File | null, language: string = 'eng', signal?: AbortSignal): Promise<string> {
 	if (!file) {
-		throw new Error('No file provided');
+		throw new Error('No file was provided for scanning.');
 	}
 
 	const supportedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 	if (!supportedTypes.includes(file.type)) {
-		throw new Error(`Unsupported file type: ${file.type}`);
+		throw new Error(`This image file type is not supported: ${file.type}.`);
 	}
 
 	let worker: Worker | null = null;
@@ -29,7 +29,7 @@ export async function ocrToText(file: File | null, language: string = 'eng', sig
 
 		return text;
 	} catch (error) {
-		throw new Error(`OCR processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		throw new Error(`Text recognition failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
 	} finally {
 		signal?.removeEventListener('abort', abortRecognition);
 		if (worker && !workerTerminated) {

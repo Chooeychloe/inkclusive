@@ -11,11 +11,11 @@
 		<div class="rounded-lg border border-primary/20 bg-primary/5 p-4">
 			<h4 class="mb-1 text-sm font-bold text-primary">How it works</h4>
 			<p class="text-xs text-muted-foreground">
-				Upload or paste your text in the Editor. Our AI will highlight gendered terms and suggest inclusive alternatives.
+				Upload or paste text into the editor. Inkclusive highlights gendered terms and suggests inclusive alternatives.
 			</p>
 		</div>
 		<button onclick={onViewDocumentation} class="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-			View Documentation
+			View documentation
 		</button>
 		<p class="text-center text-xs text-muted-foreground">Version 1.0.0 (Beta)</p>
 	</div>
