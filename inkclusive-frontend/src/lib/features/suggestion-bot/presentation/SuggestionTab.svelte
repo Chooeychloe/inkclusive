@@ -125,7 +125,7 @@
 	}
 </script>
 
-<section class="step-4 flex h-[clamp(7rem,28vh,17rem)] w-full shrink-0 flex-col overflow-hidden border-t border-border bg-muted lg:h-full lg:w-64 lg:shrink-0 lg:border-l lg:border-t-0 2xl:w-80">
+<section class="step-4 flex min-h-[24rem] w-full shrink-0 flex-col overflow-hidden border-t border-border bg-muted md:min-h-[26rem] lg:h-full lg:min-h-0 lg:w-64 lg:shrink-0 lg:border-l lg:border-t-0 2xl:w-80">
 	{#if isSuggestionsTab}
 		<!-- Grammar & GLF Suggestion Module -->
 		<div

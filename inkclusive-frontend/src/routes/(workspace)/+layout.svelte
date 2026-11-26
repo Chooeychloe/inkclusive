@@ -56,14 +56,15 @@
 </script>
 
 
-<div class="flex h-[100svh] min-h-0 flex-col overflow-hidden bg-background">
-	<div class="flex min-h-0 flex-1">
+
+<div class="flex min-h-[100svh] flex-col bg-background md:h-[100svh] md:min-h-0 md:overflow-hidden">
+	<div class="flex min-h-0 flex-1 flex-col md:flex-row">
 		<aside
-			class="step-1 flex w-[4.25rem] shrink-0 flex-col border-r border-border bg-card sm:w-[4.75rem] md:w-48 2xl:w-64"
+			class="step-1 order-2 flex w-full shrink-0 flex-col border-t border-border bg-card md:order-none md:w-[4.75rem] md:border-r md:border-t-0 lg:w-48 2xl:w-64"
 		>
-			<div class="flex flex-col gap-1 px-2">
+			<div class="flex flex-col gap-1 px-2 md:px-2">
 				<div
-					class="flex h-14 items-center justify-center gap-2 border-b border-border bg-muted/50 lg:justify-start"
+					class="hidden h-14 items-center justify-center gap-2 border-b border-border bg-muted/50 lg:justify-start md:flex"
 				>
 					<button type="button" onclick={handleLogoClick} aria-label="Inkclusive" title="Inkclusive" class="flex h-full items-center justify-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:justify-start">
 						<img src="/inkclusive.svg" alt="" class="ml-1 h-8 w-8 shrink-0 lg:ml-0" />
@@ -73,7 +74,7 @@
 
 			
 
-				<nav aria-label="Workspace" class="flex flex-col gap-2 px-1">
+				<nav aria-label="Workspace" class="flex flex-row justify-around gap-2 py-1 md:flex-col md:justify-start md:py-0 md:px-1">
 					<a
 						id="workspace-write"
 						href="/write"
@@ -137,7 +138,7 @@
 			</div>
 		</aside>
 
-		<div class="flex min-w-0 flex-1 flex-col">
+		<div class="flex min-h-0 min-w-0 flex-1 flex-col">
 			<header class="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6">
 				<p class="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">Inkclusive workspace</p>
 				<DropdownMenu.Root>
@@ -182,7 +183,7 @@
 				</DropdownMenu.Root>
 			</header>
 
-			<main class="flex min-h-0 flex-1 flex-col bg-background lg:flex-row">
+			<main class="flex min-h-0 flex-1 flex-col overflow-x-hidden bg-background md:overflow-y-auto lg:flex-row lg:overflow-hidden">
 				{@render children()}
 				<SuggestionTab></SuggestionTab>
 			</main>
