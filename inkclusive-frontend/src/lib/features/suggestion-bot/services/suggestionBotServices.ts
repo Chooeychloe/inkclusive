@@ -1,6 +1,6 @@
 import { textContent } from '$lib/stores/textFromEditorStore';
 import type { TSuggestion } from '$lib/features/suggestion-bot/entities/suggestions';
-import { aiSuggestions } from '$lib/stores/lintingStore';
+import { aiSuggestions, genderFairReviewFindings } from '$lib/stores/lintingStore';
 import { progressStore } from '$lib/stores/progressStore';
 import { get } from 'svelte/store';
 import { revisedTextStore } from '$lib/stores/revisedTextStore';
@@ -82,6 +82,7 @@ export async function grammarCheckService(nextSlide: () => void) {
 
 export async function glfCheckService(nextSlide: () => void) {
 	const preferenceMap = getSavedPronounPreferenceMap();
+	genderFairReviewFindings.set([]);
 
 	// For Deployment
 	try {
@@ -102,6 +103,34 @@ export async function glfCheckService(nextSlide: () => void) {
 		}
 		const data = await post.json();
 		console.log('data', data);
+		const reviewFindings: TSuggestion[] = data.corrections.map(
+			(correction: {
+				word_index: number;
+				character_offset: number;
+				character_endset: number;
+				original_text: string;
+				message: string;
+				replacements: string[] | string;
+				rationale?: string;
+				category?: string;
+				rule_id?: string;
+				examples?: string[];
+			}) => ({
+				indexReplacement: correction.word_index,
+				originalText: correction.original_text,
+				offSet: correction.character_offset,
+				endSet: correction.character_endset,
+				replacements: Array.isArray(correction.replacements) ? correction.replacements : [correction.replacements],
+				correctionType: 'gfl',
+				chosenReplacement: '',
+				message: correction.message || 'Review this wording in context.',
+				rationale: correction.rationale || '',
+				category: correction.category || 'Gender-fair language',
+				ruleId: correction.rule_id,
+				examples: correction.examples
+			})
+		);
+		genderFairReviewFindings.set(reviewFindings);
 
 		await revisedTextStore.set(data.revised_text as string);
 

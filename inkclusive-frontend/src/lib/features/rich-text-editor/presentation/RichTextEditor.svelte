@@ -283,7 +283,7 @@ import { editorHistoryStore } from '$lib/stores/editorHistoryStore';
 	});
 </script>
 
-<section class="flex min-h-0 flex-1 flex-col items-center bg-card xl:h-full">
+<section class="flex min-h-[65svh] min-w-0 flex-1 flex-col items-center bg-card md:min-h-0 xl:h-full">
 	<!-- Custom toolbar with Chadcn Svelte buttons -->
 	<div
 		class="step-3 flex min-h-14 w-full shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-b border-border bg-card px-3 py-2 sm:px-4 lg:flex-nowrap"

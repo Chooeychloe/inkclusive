@@ -4,7 +4,7 @@
 	import FileNameDisplay from '$lib/features/document-scan/presentation/FileNameDisplay.svelte';
 	import { convertInputToFile } from '../use-case/extractDocument';
 	import { textContent, textContentHTML, textTitle } from '$lib/stores/textFromEditorStore';
-	import { aiSuggestions, replaceStore } from '$lib/stores/lintingStore';
+	import { aiSuggestions, genderFairReviewFindings, replaceStore } from '$lib/stores/lintingStore';
 	import { GLFScore } from '$lib/stores/omegaLOL';
 	import { progressStore } from '$lib/stores/progressStore';
 	import { ignoreGrammarStore } from '$lib/stores/ignoreStore';
@@ -54,6 +54,7 @@
 							$progressStore = 0;
 							$GLFScore = 0;
 							$aiSuggestions = [];
+							$genderFairReviewFindings = [];
 							$replaceStore = [];
 							$ignoreGrammarStore = [];
 							fileDocument = convertInputToFile(e);

@@ -6,7 +6,7 @@
 <section class="flex flex-1 flex-col items-center bg-muted ">
 	<Skeleton class=" w-full h-[55px] rounded-none border-solid border-b border-border" />
 	<Skeleton
-		class="flex-1 w-[700px] rounded-none border-solid border border-border border-t-0"
+			class="w-full max-w-[900px] flex-1 rounded-none border-solid border border-border border-t-0"
 	></Skeleton>
 </section>
 

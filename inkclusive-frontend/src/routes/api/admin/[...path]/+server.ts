@@ -18,7 +18,8 @@ const proxy: RequestHandler = async ({ request, params, cookies, fetch }) => {
 
 	try {
 		const body = request.method === 'GET' ? undefined : new Uint8Array(await request.arrayBuffer());
-		const upstream = await fetch(`${backendBaseUrl()}/api/v1/${path.split('/').map(encodeURIComponent).join('/')}`, {
+		const upstreamPath = path === 'change-password' ? 'admin/change-password' : path;
+		const upstream = await fetch(`${backendBaseUrl()}/api/v1/${upstreamPath.split('/').map(encodeURIComponent).join('/')}`, {
 			method: request.method,
 			headers: {
 				Authorization: `Bearer ${token}`,

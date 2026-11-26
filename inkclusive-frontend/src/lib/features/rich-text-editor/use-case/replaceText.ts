@@ -38,6 +38,10 @@ export function replaceWordInDocument(
 	}
 
 	const transaction = editorState.tr;
+	// Suggestion changes have their own per-suggestion undo/redo controls.
+	// Keep them out of ProseMirror's separate toolbar history to avoid the two
+	// histories moving the document independently.
+	transaction.setMeta('addToHistory', false);
 
 	// Collect all formatting segments in the selection
 	const formattingSegments: FormattingSegment[] = [];

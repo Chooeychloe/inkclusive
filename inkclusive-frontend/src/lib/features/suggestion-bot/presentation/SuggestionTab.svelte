@@ -16,7 +16,7 @@
 	} from '$lib/features/suggestion-bot/services/suggestionBotServices';
 	import PreferenceModule from '$lib/features/suggestion-bot/presentation/PreferenceModule.svelte';
 	import { textContent, textContentHTML, textTitle } from '$lib/stores/textFromEditorStore';
-	import { aiSuggestions, replaceStore } from '$lib/stores/lintingStore';
+import { aiSuggestions, genderFairReviewFindings, replaceStore } from '$lib/stores/lintingStore';
 	import { GLFScore } from '$lib/stores/omegaLOL';
 	import { afterNavigate } from '$app/navigation';
 	import { ignoreGrammarStore } from '$lib/stores/ignoreStore';
@@ -108,6 +108,7 @@
 			$textTitle = 'Untitled_1';
 			$GLFScore = 0;
 			$aiSuggestions = [];
+			$genderFairReviewFindings = [];
 			$replaceStore = [];
 			$ignoreGrammarStore = [];
 			tabIndex = api.selectedScrollSnap();
@@ -119,13 +120,14 @@
 			api.scrollTo(0);
 			$progressStore = 0;
 			$aiSuggestions = [];
+			$genderFairReviewFindings = [];
 			$replaceStore = [];
 			tabIndex = api.selectedScrollSnap();
 		}
 	}
 </script>
 
-<section class="step-4 flex h-[clamp(7rem,28vh,17rem)] w-full shrink-0 flex-col overflow-hidden border-t border-border bg-muted lg:h-full lg:w-64 lg:shrink-0 lg:border-l lg:border-t-0 2xl:w-80">
+<section class="step-4 flex min-h-[24rem] w-full shrink-0 flex-col overflow-hidden border-t border-border bg-muted md:min-h-[26rem] lg:h-full lg:min-h-0 lg:w-64 lg:shrink-0 lg:border-l lg:border-t-0 2xl:w-80">
 	{#if isSuggestionsTab}
 		<!-- Grammar & GLF Suggestion Module -->
 		<div
