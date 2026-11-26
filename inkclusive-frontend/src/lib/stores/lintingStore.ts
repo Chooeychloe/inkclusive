@@ -3,3 +3,8 @@ import type { TSuggestion } from '../features/suggestion-bot/entities/suggestion
 
 export const aiSuggestions = writable<TSuggestion[]>([]);
 export const replaceStore = writable<TSuggestion[]>([]);
+export const genderFairReviewFindings = writable<TSuggestion[]>([]);
+
+export function enqueueReplacements(replacements: TSuggestion[]) {
+	replaceStore.update((queued) => [...queued, ...replacements]);
+}

@@ -13,7 +13,7 @@
 	import { textContent, textContentHTML, textTitle } from '$lib/stores/textFromEditorStore';
 	import { getTextFromPDF } from '$lib/features/document-scan/use-case/extractPDF';
 	import { ocrToText } from '$lib/features/document-scan/use-case/imgToText';
-	import { aiSuggestions, replaceStore } from '$lib/stores/lintingStore';
+	import { aiSuggestions, genderFairReviewFindings, replaceStore } from '$lib/stores/lintingStore';
 	import { GLFScore } from '$lib/stores/omegaLOL';
 	import { progressStore } from '$lib/stores/progressStore';
 	import { driver } from 'driver.js';
@@ -170,6 +170,7 @@
 				$progressStore = 0;
 				$GLFScore = 0;
 				$aiSuggestions = [];
+				$genderFairReviewFindings = [];
 				$replaceStore = [];
 
 				try {
@@ -201,6 +202,7 @@
 						$progressStore = 0;
 						$GLFScore = 0;
 						$aiSuggestions = [];
+						$genderFairReviewFindings = [];
 						$replaceStore = [];
 						fileDocument = convertInputToFile(e);
 						setFileNameDisplay(fileName, fileSuffix);

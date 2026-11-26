@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import SuggestionCard from './SuggestionCard.svelte';
-	import { aiSuggestions, replaceStore } from '$lib/stores/lintingStore';
+	import { aiSuggestions, enqueueReplacements } from '$lib/stores/lintingStore';
 	import type { TSuggestion } from '$lib/features/suggestion-bot/entities/suggestions';
 	import { ArrowRight, Check, HeartHandshake, Languages, Pencil } from '@lucide/svelte';
 	import { GLFScore } from '$lib/stores/omegaLOL';
@@ -25,7 +25,7 @@
 		const suggestion = { ...$aiSuggestions[index], chosenReplacement: correctionString };
 		shiftAppliedOffsets(suggestion.offSet, suggestion.originalText.length, correctionString.length);
 		appliedSuggestions = [...appliedSuggestions.filter((item) => item.applied), { suggestion, applied: true, currentOffset: suggestion.offSet }];
-		$replaceStore = [suggestion];
+		enqueueReplacements([suggestion]);
 		$aiSuggestions = $aiSuggestions.filter((_, itemIndex) => itemIndex !== index);
 		reviewTab = 'applied';
 	}
@@ -54,16 +54,16 @@
 			nextApplied.push({ suggestion, applied: true, currentOffset: suggestion.offSet });
 		}
 		appliedSuggestions = nextApplied;
-		$replaceStore = selected;
+		enqueueReplacements(selected);
 		$aiSuggestions = [];
 		reviewTab = 'applied';
 	}
 
 	function undoApplied(index: number) {
 		const item = appliedSuggestions[index];
-		if (!item?.applied) return;
+		if (!item?.applied || hasSuggestions) return;
 		const { suggestion, currentOffset } = item;
-		$replaceStore = [{ ...suggestion, offSet: currentOffset, endSet: currentOffset + suggestion.chosenReplacement.length, chosenReplacement: suggestion.originalText }];
+		enqueueReplacements([{ ...suggestion, offSet: currentOffset, endSet: currentOffset + suggestion.chosenReplacement.length, chosenReplacement: suggestion.originalText }]);
 		$GLFScore = Math.max(0, $GLFScore - 1);
 		shiftAppliedOffsets(currentOffset, suggestion.chosenReplacement.length, suggestion.originalText.length);
 		appliedSuggestions[index] = { ...item, applied: false };
@@ -71,9 +71,9 @@
 	}
 	function redoApplied(index: number) {
 		const item = appliedSuggestions[index];
-		if (!item || item.applied) return;
+		if (!item || item.applied || hasSuggestions) return;
 		const { suggestion, currentOffset } = item;
-		$replaceStore = [{ ...suggestion, offSet: currentOffset, endSet: currentOffset + suggestion.originalText.length, chosenReplacement: suggestion.chosenReplacement }];
+		enqueueReplacements([{ ...suggestion, offSet: currentOffset, endSet: currentOffset + suggestion.originalText.length, chosenReplacement: suggestion.chosenReplacement }]);
 		$GLFScore += 1;
 		shiftAppliedOffsets(currentOffset, suggestion.originalText.length, suggestion.chosenReplacement.length);
 		appliedSuggestions[index] = { ...item, applied: true };
@@ -157,6 +157,11 @@
 		<button role="tab" aria-selected={reviewTab === 'pending'} class="rounded-md px-3 py-2 text-sm font-medium {reviewTab === 'pending' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}" onclick={() => (reviewTab = 'pending')}>Suggestions ({suggestionsReference.length})</button>
 		<button role="tab" aria-selected={reviewTab === 'applied'} class="rounded-md px-3 py-2 text-sm font-medium {reviewTab === 'applied' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}" onclick={() => (reviewTab = 'applied')}>Applied ({appliedSuggestions.length})</button>
 	</div>
+	{#if reviewTab === 'applied' && hasSuggestions}
+		<p class="mb-3 rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs leading-relaxed text-muted-foreground" role="status">
+			Finish accepting or ignoring the remaining suggestions to enable undo and redo.
+		</p>
+	{/if}
 	{#if reviewTab === 'pending'}
 		{#if hasSuggestions}
 			{#key $aiSuggestions}
@@ -167,7 +172,7 @@
 		{/if}
 	{:else if appliedSuggestions.length}
 		{#each appliedSuggestions as item, index}
-			<SuggestionCard suggestion={item.suggestion} index={index} removeMe={() => {}} ignoreMe={() => {}} historyItem applied={item.applied} canUndo={item.applied} canRedo={!item.applied} undoApplied={() => undoApplied(index)} redoApplied={() => redoApplied(index)} />
+			<SuggestionCard suggestion={item.suggestion} index={index} removeMe={() => {}} ignoreMe={() => {}} historyItem applied={item.applied} canUndo={item.applied && !hasSuggestions} canRedo={!item.applied && !hasSuggestions} undoApplied={() => undoApplied(index)} redoApplied={() => redoApplied(index)} />
 		{/each}
 	{:else}
 		<div class="rounded-xl border border-dashed border-border bg-card/60 px-4 py-6 text-center"><p class="text-sm font-medium text-foreground">No applied suggestions yet</p></div>

@@ -3,21 +3,10 @@
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import type { TSuggestion } from '$lib/features/suggestion-bot/entities/suggestions';
-	import { revisedTextStore } from '$lib/stores/revisedTextStore';
-	import { aiSuggestions } from '$lib/stores/lintingStore';
-	import { progressStore } from '$lib/stores/progressStore';
-	import { toast } from 'svelte-sonner';
-	import { textContent } from '$lib/stores/textFromEditorStore';
-	import { getSavedPronounPreferenceMap } from '$lib/features/suggestion-bot/entities/formSchema';
-	import { env } from '$env/dynamic/public';
 	import { onMount } from 'svelte';
 	import { GLFScore } from '$lib/stores/omegaLOL';
-	import { ignoreGrammarStore } from '$lib/stores/ignoreStore';
 	import { waitStore } from '$lib/stores/waitStore';
-	import { getCount } from '../../services/countService';
-	import { countStore } from '$lib/stores/countStore';
 	import { ChevronDown, ChevronUp, Trash2, Undo2, Redo2, Check } from '@lucide/svelte';
-	const apiUrl = `${env.PUBLIC_BACKEND_URL?.replace(/\/+$/, '') ?? ''}/api/v1/`;
 
 	let isCompact = $state<boolean>(false);
 	let {
@@ -48,134 +37,6 @@
 	onMount(() => {
 		$inspect('card', suggestion);
 	});
-	async function jempoyMoves(bruh: string) {
-		isLoading = true;
-		$waitStore = true;
-		if (bruh == 'grammar') {
-			try {
-				const post = await fetch(`${apiUrl}grammar`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ prompt: $textContent })
-				});
-
-				if (!post.ok) {
-					const error = await post.json().catch(() => ({}));
-					throw new Error(error.detail || `Grammar check failed (${post.status}).`);
-				}
-				const data = await post.json();
-				$revisedTextStore = await (data.revised_text as string);
-				console.log('FETCHING ' + $textContent);
-				console.log(data);
-
-				if (Object.keys(data).length !== 0) {
-					const suggestions: Promise<TSuggestion[]> = data.corrections.map(
-						(correction: {
-							word_index: number;
-							character_offset: number;
-							character_endset: number;
-							original_text: string;
-							message: string;
-							replacements: string[];
-							category?: string;
-							rule_id?: string;
-							examples?: string[];
-						}) => ({
-							indexReplacement: correction.word_index,
-							originalText: correction.original_text,
-							offSet: correction.character_offset,
-							endSet: correction.character_endset,
-							replacements: [...correction.replacements],
-							correctionType: 'grammar',
-							chosenReplacement: '',
-							message: correction.message,
-							rationale: correction.message,
-							category: correction.category,
-							ruleId: correction.rule_id
-						})
-					);
-					const filteredSuggestions = await (
-						await suggestions
-					).filter((value) => value.replacements.some((replacement) => typeof replacement === 'string' && replacement.trim().length > 0)
-						&& !$ignoreGrammarStore.includes(value.originalText));
-					aiSuggestions.set(await filteredSuggestions);
-					$progressStore = 50;
-				} else {
-					progressStore.set(50);
-				}
-			} catch (error) {
-				toast.error(error instanceof Error ? error.message : 'The grammar service could not be reached.');
-				console.error('Error:', error);
-			} finally {
-				isLoading = false;
-				$waitStore = false;
-			}
-		} else if (bruh == 'gfl') {
-			const preferenceMap = getSavedPronounPreferenceMap();
-
-			try {
-				const post = await fetch(`${apiUrl}gfl`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ prompt: $textContent, pronoun_map: preferenceMap })
-				});
-
-				if (!post.ok) {
-					const error = await post.json().catch(() => ({}));
-					throw new Error(error.detail || `Gender-fair check failed (${post.status}).`);
-				}
-				const data = await post.json();
-
-				$revisedTextStore = await (data.revised_text as string);
-
-				if (Object.keys(data).length !== 0) {
-					let suggestions: Promise<TSuggestion[]> = data.corrections.map(
-						(correction: {
-							word_index: number;
-							character_offset: number;
-							character_endset: number;
-							original_text: string;
-							message: string;
-							replacements: string[] | string;
-							rationale?: string;
-							category?: string;
-							rule_id?: string;
-							examples?: string[];
-						}) => ({
-							indexReplacement: correction.word_index,
-							originalText: correction.original_text,
-							offSet: correction.character_offset,
-							endSet: correction.character_endset,
-							replacements: Array.isArray(correction.replacements) ? correction.replacements : [correction.replacements],
-							correctionType: 'gfl',
-							chosenReplacement: '',
-							message: correction.message || 'Consider a gender-neutral alternative',
-							rationale: correction.rationale || '',
-							category: correction.category || 'Gender-fair language',
-							ruleId: correction.rule_id,
-							examples: correction.examples
-						})
-					);
-
-					$aiSuggestions = (await suggestions).filter((value) => value.replacements.some((replacement) => typeof replacement === 'string' && replacement.trim().length > 0));
-					console.log($aiSuggestions);
-				} else {
-					$aiSuggestions = [];
-				}
-			} catch (error) {
-				toast.error(error instanceof Error ? error.message : 'The gender-fair service could not be reached.');
-				console.error('Error:', error);
-			} finally {
-				isLoading = false;
-				$waitStore = false;
-			}
-			await getCount();
-		}
-	}
 </script>
 
 <Card.Root class="my-3 w-full overflow-hidden border-border shadow-sm">
@@ -232,8 +93,14 @@
 							if (suggestion.correctionType === 'gfl') {
 								$GLFScore += 1;
 							}
-							await removeMe(index, item);
-							await jempoyMoves(suggestion.correctionType);
+							isLoading = true;
+							$waitStore = true;
+							try {
+								removeMe(index, item);
+							} finally {
+								isLoading = false;
+								$waitStore = false;
+							}
 						}}
 					>
 						<span class="w-full rounded-md p-1 text-base font-bold">

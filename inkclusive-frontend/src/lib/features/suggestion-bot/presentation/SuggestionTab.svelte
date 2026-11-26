@@ -16,7 +16,7 @@
 	} from '$lib/features/suggestion-bot/services/suggestionBotServices';
 	import PreferenceModule from '$lib/features/suggestion-bot/presentation/PreferenceModule.svelte';
 	import { textContent, textContentHTML, textTitle } from '$lib/stores/textFromEditorStore';
-	import { aiSuggestions, replaceStore } from '$lib/stores/lintingStore';
+import { aiSuggestions, genderFairReviewFindings, replaceStore } from '$lib/stores/lintingStore';
 	import { GLFScore } from '$lib/stores/omegaLOL';
 	import { afterNavigate } from '$app/navigation';
 	import { ignoreGrammarStore } from '$lib/stores/ignoreStore';
@@ -108,6 +108,7 @@
 			$textTitle = 'Untitled_1';
 			$GLFScore = 0;
 			$aiSuggestions = [];
+			$genderFairReviewFindings = [];
 			$replaceStore = [];
 			$ignoreGrammarStore = [];
 			tabIndex = api.selectedScrollSnap();
@@ -119,6 +120,7 @@
 			api.scrollTo(0);
 			$progressStore = 0;
 			$aiSuggestions = [];
+			$genderFairReviewFindings = [];
 			$replaceStore = [];
 			tabIndex = api.selectedScrollSnap();
 		}

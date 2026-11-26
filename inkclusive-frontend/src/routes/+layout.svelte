@@ -6,7 +6,7 @@
 	import { textContent, textContentHTML, textTitle } from '$lib/stores/textFromEditorStore';
 	import { progressStore } from '$lib/stores/progressStore';
 	import { GLFScore } from '$lib/stores/omegaLOL';
-	import { aiSuggestions, replaceStore } from '$lib/stores/lintingStore';
+	import { aiSuggestions, genderFairReviewFindings, replaceStore } from '$lib/stores/lintingStore';
 	import { ignoreGrammarStore } from '$lib/stores/ignoreStore';
 	import { page } from '$app/state';
 	import { ModeWatcher } from 'mode-watcher';
@@ -26,6 +26,7 @@
 		$progressStore = 0;
 		$GLFScore = 0;
 		$aiSuggestions = [];
+		$genderFairReviewFindings = [];
 		$replaceStore = [];
 		$ignoreGrammarStore = [];
 	}
